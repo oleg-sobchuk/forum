@@ -1,31 +1,31 @@
-package com.sobchuk.forum.user;
+package com.sobchuk.forum.models;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
-@Table(name="users")
-public class User {
-
-    public static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+@Table(name="forum.users")
+public class User extends AuditDate{
 
     @Id
-    @GeneratedValue
-    @Column(name="user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id", unique = true, nullable = false)
     private int id;
 
     @NotNull
-    @Size(min=2, max=35)
+    @Size(min=3, max=35)
     @Column(name="user_name")
     private String name;
 
-    @Column(name="email")
+    @Column(name="user_email")
+    @Email
     private String email;
 
     @NotNull
@@ -33,26 +33,15 @@ public class User {
     @Column(name="user_password")
     private String password;
 
-    @DateTimeFormat(pattern = DATE_FORMAT)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
-    @Column(name="date_add")
-    private Date dateAdd;
-
-    @DateTimeFormat(pattern = DATE_FORMAT)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
-    @Column(name="date_update")
-    private Date dateUpdate;
 
     public User(){
     }
 
     public User(String name, String password, String email) {
+        //this.login = login;
         this.name = name;
         this.password = password;
         this.email = email;
-        Date now = new Date();
-        dateAdd = now;
-        dateUpdate = now;
     }
 
     public int getId() {
@@ -87,19 +76,4 @@ public class User {
         this.password = password;
     }
 
-    public Date getDateAdd() {
-        return dateAdd;
-    }
-
-    public void setDateAdd(Date dateAdd) {
-        this.dateAdd = dateAdd;
-    }
-
-    public Date getDateUpdate() {
-        return dateUpdate;
-    }
-
-    public void setDateUpdate(Date dateUpdate) {
-        this.dateUpdate = dateUpdate;
-    }
 }

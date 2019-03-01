@@ -1,10 +1,13 @@
-package com.sobchuk.forum.user;
+package com.sobchuk.forum.dao;
 
+import com.sobchuk.forum.models.Topic;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Repository
 @Transactional
-public abstract class UserDAO implements CrudRepository<User, Integer> {
+public interface TopicDAO extends CrudRepository<Topic, Long> {
 }
