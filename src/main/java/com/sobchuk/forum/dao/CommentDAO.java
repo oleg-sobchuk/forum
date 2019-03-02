@@ -13,5 +13,5 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface CommentDAO extends CrudRepository<Comment, Long>{
-
+    List<Comment> findAllByTopicId(Long Id);
 }

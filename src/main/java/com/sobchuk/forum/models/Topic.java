@@ -1,5 +1,9 @@
 package com.sobchuk.forum.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -15,9 +19,11 @@ public class Topic extends AuditDate{
 
     @NotNull
     @Size(min=1, max=55)
-    @Column(name="topic_name")
+    @Column(name="topic_name", unique = true)
     private String name;
 
+    @NotNull
+    @Size(min=5)
     @Column(name="topic_desc")
     private String desc;
 
@@ -31,7 +37,22 @@ public class Topic extends AuditDate{
     @Column(name="updated_by")
     private String updatedBy;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "theme_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Theme theme;
+
     public Topic() {
+    }
+
+    public Topic(@NotNull @Size(min = 1, max = 55) String name, @NotNull @Size(min = 5) String desc,
+                 @NotNull @Size(min = 3, max = 35) String createdBy, Theme theme) {
+        this.name = name;
+        this.desc = desc;
+        this.createdBy = createdBy;
+        this.updatedBy = createdBy;
+        this.theme = theme;
     }
 
     public Long getId() {
@@ -72,5 +93,13 @@ public class Topic extends AuditDate{
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(Theme theme) {
+        this.theme = theme;
     }
 }

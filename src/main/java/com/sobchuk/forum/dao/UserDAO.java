@@ -13,4 +13,5 @@ import java.util.Optional;
 @Transactional
 public interface UserDAO extends CrudRepository<User, Integer> {
 
+    public User findByName(String username);
 }

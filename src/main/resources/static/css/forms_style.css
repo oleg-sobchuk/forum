@@ -1,0 +1,35 @@
+@charset "UTF-8";
+
+body{
+    background: #f1f3fa;
+    font-family: sans-serif;
+
+}
+h1{
+    font-style: italic;
+    color: #000080;
+}
+
+button, input[type=submit]{
+    background: #dbd2f9;
+    border: 2px solid #0000a0;
+    border-radius: 6px;
+    transition-duration: 0.3s;
+    cursor: pointer;
+}
+
+button:hover, input[type=submit]:hover{
+    background: #f9f3fe;
+}
+
+input[type=text]{
+    border: 2px solid #ddd
+}
+
+input[type=text]:hover{
+    border: 2px solid #bbb;
+}
+
+input[type=text]:focus{
+    border: 2px solid #999
+}

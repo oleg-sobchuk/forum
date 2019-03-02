@@ -23,8 +23,8 @@ public class Comment extends AuditDate{
 
     @NotNull
     @Size(min=3, max=35)
-    @Column(name="owner")
-    private String owner;
+    @Column(name="created_by")
+    private String createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "topic_id", nullable = false)
@@ -33,6 +33,12 @@ public class Comment extends AuditDate{
     private Topic topic;
 
     public Comment(){
+    }
+
+    public Comment(@NotNull String text, @NotNull @Size(min = 3, max = 35) String createdBy, Topic topic) {
+        this.text = text;
+        this.createdBy = createdBy;
+        this.topic = topic;
     }
 
     public Long getId() {
@@ -51,12 +57,12 @@ public class Comment extends AuditDate{
         this.text = text;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Topic getTopic() {

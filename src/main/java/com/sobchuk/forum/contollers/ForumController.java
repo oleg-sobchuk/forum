@@ -1,44 +1,87 @@
 package com.sobchuk.forum.contollers;
 
 import com.sobchuk.forum.dao.CommentDAO;
+import com.sobchuk.forum.dao.ThemeDAO;
 import com.sobchuk.forum.dao.TopicDAO;
 import com.sobchuk.forum.dao.UserDAO;
+import com.sobchuk.forum.models.Theme;
 import com.sobchuk.forum.models.User;
+import com.sobchuk.forum.security.ForumUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collection;
-import java.util.Map;
+import javax.validation.Valid;
 
 @Controller
+@RequestMapping(value = "/")
 public class ForumController {
 
-    @Autowired
-    private CommentDAO commentDAO;
-
-    @Autowired
-    private TopicDAO topicDAO;
 
     @Autowired
     private UserDAO userDAO;
 
-    //@SuppressWarnings("unchecked")
-    @GetMapping(value = "/")
-    public String home(Model model){
-        System.out.println("im here");
-        User user = new User("mee","passss","asdad@adad");
-        //user.setId(33);
+    @Autowired
+    private ThemeDAO themeDAO;
 
-        userDAO.save(user);
-        model.addAttribute("users",userDAO.findAll());
-        System.out.println(userDAO.findAll());
-        System.out.println(commentDAO.findAll());
-        model.addAttribute("comments", commentDAO.findAll());
+
+    @GetMapping(value = {"/","/home"})
+    public String home(Model model){
+        String user = getPrincipal();
+        model.addAttribute("user",user);
+        model.addAttribute("themes", themeDAO.findAll());
         //model.addAttribute("topics",topicDAO.findAll());
         return "index";
+    }
+
+    @GetMapping(value = "/login")
+    public ModelAndView loginPage(@RequestParam(value = "error", required = false) String error){
+        ModelAndView model = new ModelAndView();
+        if (error != null){
+            model.addObject(error, "invalid user name or password!");
+        }
+        model.setViewName("login");
+        return model;
+    }
+
+    @GetMapping(value = "/createUser")
+    public ModelAndView registration(@RequestParam(value = "error", required = false) String error){
+        ModelAndView model = new ModelAndView();
+        if (error != null){
+            model.addObject(error, "invalid data, try again");
+        }
+        model.setViewName("register");
+        return model;
+    }
+
+    @PostMapping(value = "/createUser")
+    public String createUser(@Valid @ModelAttribute("user") User user, Errors nameError
+                            //,@Valid @RequestParam("password")String password, Errors pasError,
+                            // @Valid @RequestParam("email")String email, Errors emailError
+                            ){
+        User newUser = new User(user.getName(), user.getEmail(), user.getPassword());
+        userDAO.save(newUser);
+        return "redirect:/";
+    }
+
+    @GetMapping("/accessDenied")
+    public String accessDenied(){
+        return "accessDeniedPage";
+    }
+
+    private String getPrincipal(){
+        String userName = null;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails){
+            userName = ((UserDetails)principal).getUsername();
+        }else{
+            userName = principal.toString();
+        }
+        return userName;
     }
 }
