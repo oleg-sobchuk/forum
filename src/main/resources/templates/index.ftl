@@ -1,4 +1,4 @@
-<#include "./main_templaite.ftl"/>
+<#include "main_templaite.ftl"/>
 
 <#macro content>
 <p>Welcome to forum, ${user}</p>
@@ -10,6 +10,7 @@
             <td>${theme.createdBy}</td>
             <td>${theme.dateAdd?string("dd-MM-yyyy HH:mm:ss")}</td>
             <td>${theme.dateUpdate?string("dd-MM-yyyy HH:mm:ss")}</td>
+            <td><a href="/themes/${theme.id}/deleteTheme">delete</a></td>
         </tr>
     </#list>
 </table>

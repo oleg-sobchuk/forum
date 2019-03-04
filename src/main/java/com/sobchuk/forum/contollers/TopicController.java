@@ -6,11 +6,13 @@ import com.sobchuk.forum.dao.TopicDAO;
 import com.sobchuk.forum.models.Comment;
 import com.sobchuk.forum.models.Theme;
 import com.sobchuk.forum.models.Topic;
+import com.sobchuk.forum.util.TopicValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,10 +30,21 @@ public class TopicController {
     @Autowired
     private ThemeDAO themeDAO;
 
+    @Autowired
+    private TopicValidator topicValidator;
+
     @PostMapping(value = "{id}/createTopic")
-    public String createTopic(@PathVariable Long id, @ModelAttribute Topic topic, Model model){
+    public String createTopic(@PathVariable Long id, @ModelAttribute @Valid Topic topic,
+                              BindingResult result, Model model){
+        topicValidator.validate(topic,result);
         Optional<Theme> theme = themeDAO.findById(id);
         if(theme.isPresent()){
+            if (result.hasErrors()){
+                model.addAttribute("topic", new Topic());
+                model.addAttribute("theme",theme.get());
+                model.addAttribute("errors",result.getAllErrors());
+                return "/topics/createTopic";
+            }
             String userName = getPrincipal();
             Topic newTopic = new Topic(topic.getName(), topic.getDesc(), userName, theme.get());
             topicDAO.save(newTopic);
@@ -44,10 +57,17 @@ public class TopicController {
     public String createTopicPage(@PathVariable Long id, Model model){
         Optional<Theme> theme = themeDAO.findById(id);
         if(theme.isPresent()){
+            model.addAttribute("topic", new Topic());
             model.addAttribute("theme",theme.get());
             return "/topics/createTopic";
         }
         return "redirect:/";
+    }
+
+    @GetMapping(value = "{themeId}/{topicId}/deleteTopic")
+    public String deleteTopic(@PathVariable Long themeId, @PathVariable Long topicId){
+        topicDAO.deleteById(topicId);
+        return "redirect:/themes/{themeId}";
     }
 
     @GetMapping(value = "{themeId}/{id}")
@@ -58,7 +78,6 @@ public class TopicController {
             model.addAttribute("topic",topic.get());
             model.addAttribute("theme", topic.get().getTheme());
         }else{
-            //model.addAttribute("error", "ThemeId "+id+" not found");
             return "redirect:/theme/{themeId}";
         }
         List<Comment> comments = commentDAO.findAllByTopicId(id);

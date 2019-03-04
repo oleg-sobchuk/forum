@@ -1,17 +1,15 @@
 package com.sobchuk.forum.contollers;
 
-import com.sobchuk.forum.dao.CommentDAO;
 import com.sobchuk.forum.dao.ThemeDAO;
-import com.sobchuk.forum.dao.TopicDAO;
 import com.sobchuk.forum.dao.UserDAO;
-import com.sobchuk.forum.models.Theme;
 import com.sobchuk.forum.models.User;
-import com.sobchuk.forum.security.ForumUserDetailsService;
+import com.sobchuk.forum.util.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -29,13 +27,15 @@ public class ForumController {
     @Autowired
     private ThemeDAO themeDAO;
 
+    @Autowired
+    private UserValidator userValidator;
+
 
     @GetMapping(value = {"/","/home"})
     public String home(Model model){
         String user = getPrincipal();
         model.addAttribute("user",user);
         model.addAttribute("themes", themeDAO.findAll());
-        //model.addAttribute("topics",topicDAO.findAll());
         return "index";
     }
 
@@ -50,20 +50,17 @@ public class ForumController {
     }
 
     @GetMapping(value = "/createUser")
-    public ModelAndView registration(@RequestParam(value = "error", required = false) String error){
-        ModelAndView model = new ModelAndView();
-        if (error != null){
-            model.addObject(error, "invalid data, try again");
-        }
-        model.setViewName("register");
-        return model;
+    public String registration(Model model){
+        model.addAttribute("user", new User());
+        return "register";
     }
 
     @PostMapping(value = "/createUser")
-    public String createUser(@Valid @ModelAttribute("user") User user, Errors nameError
-                            //,@Valid @RequestParam("password")String password, Errors pasError,
-                            // @Valid @RequestParam("email")String email, Errors emailError
-                            ){
+    public String createUser(@Valid @ModelAttribute("user") User user, BindingResult result){
+        userValidator.validate(user, result);
+        if(result.hasErrors()){
+            return "register";
+        }
         User newUser = new User(user.getName(), user.getEmail(), user.getPassword());
         userDAO.save(newUser);
         return "redirect:/";

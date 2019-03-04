@@ -13,5 +13,6 @@ import java.util.List;
 @Repository
 @Transactional
 public interface TopicDAO extends CrudRepository<Topic, Long> {
-    public List<Topic> findAllByThemeId(Long Id);
+    List<Topic> findAllByThemeId(Long Id);
+    Topic findByName(String name);
 }

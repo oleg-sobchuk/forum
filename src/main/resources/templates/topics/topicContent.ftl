@@ -4,24 +4,20 @@
  <h1>${topic.name}</h1>
  <p>${topic.desc}</p>
     <#if comments?has_content>
-    <table>
+
         <#list comments as comment>
-            <tr>
-                <td>${comment.text}</td>
-                <td>${comment.createdBy}</td>
-                <td>${comment.topic.name}</td>
-                <td>${comment.dateAdd?string("dd-MM-yyyy HH:mm:ss")}</td>
-                <td>${comment.dateUpdate?string("dd-MM-yyyy HH:mm:ss")}</td>
-            </tr>
+            <fieldset>
+                <legend align="left">${comment.createdBy} : ${comment.dateUpdate?string("dd-MM-yyyy HH:mm:ss")}</legend>
+                <div >${comment.text}</div>
+            </fieldset>
         </#list>
-    </table>
+
     <#else>
         <p>Your coment will be first...</p>
     </#if>
-    <form name="comment" action="/themes/${theme.id}/${topic.id}/createComment" method="post">
-        <p>New comment</p>
-        <input title="Text" type="text" name="text">
-        <input type="submit" value="OK">
+    <form id="comment_form" name="comment" action="/themes/${theme.id}/${topic.id}/createComment" method="post">
+        <textarea title="Add comment" form="comment_form" name="text" cols="50" rows="10"></textarea>
+        <input type="submit" value="add comment">
     </form>
 
 </#macro>

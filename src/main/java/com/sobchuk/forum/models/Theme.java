@@ -18,7 +18,7 @@ public class Theme extends AuditDate {
     @Column(name="theme_name", unique = true)
     private String name;
 
-    @NotNull
+
     @Size(min=3, max=35)
     @Column(name="created_by")
     private String createdBy;
@@ -26,7 +26,7 @@ public class Theme extends AuditDate {
     public Theme(){
     }
 
-    public Theme(@NotNull @Size(min = 1, max = 55) String name, String createdBy) {
+    public Theme(@NotNull @Size(min = 1, max = 55) String name, @Size(min=3, max=35) String createdBy) {
         this.name = name;
         this.createdBy = createdBy;
     }

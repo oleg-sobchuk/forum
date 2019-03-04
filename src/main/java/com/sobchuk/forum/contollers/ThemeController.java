@@ -1,16 +1,16 @@
 package com.sobchuk.forum.contollers;
 
-import com.sobchuk.forum.dao.CommentDAO;
 import com.sobchuk.forum.dao.ThemeDAO;
 import com.sobchuk.forum.dao.TopicDAO;
-import com.sobchuk.forum.exceptions.ResourceNotFoundException;
 import com.sobchuk.forum.models.Theme;
 import com.sobchuk.forum.models.Topic;
+import com.sobchuk.forum.util.ThemeValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,18 +28,32 @@ public class ThemeController {
     @Autowired
     private ThemeDAO themeDAO;
 
-    @PostMapping(value = "createTheme")
-    public String createTheme(@Valid @RequestParam("name")String name){
+    @Autowired
+    private ThemeValidator themeValidator;
 
+    @PostMapping(value = "createTheme")
+    public String createTheme(@Valid @ModelAttribute Theme theme, BindingResult result, Model model){
+        themeValidator.validate(theme,result);
+        if (result.hasErrors()){
+            model.addAttribute("theme", new Theme());
+            return "/themes/createTheme";
+        }
         String userName = getPrincipal();
-        Theme theme = new Theme(name, userName);
-        themeDAO.save(theme);
+        Theme newTheme = new Theme(theme.getName(), userName);
+        themeDAO.save(newTheme);
         return "redirect:/";
     }
 
     @GetMapping(value = "createTheme")
-    public String createThemePage(@ModelAttribute Theme theme){
+    public String createThemePage(Model model){
+        model.addAttribute("theme",new Theme());
         return "/themes/createTheme";
+    }
+
+    @GetMapping(value = "{id}/deleteTheme")
+    public String deleteTheme(@PathVariable Long id){
+        themeDAO.deleteById(id);
+        return "redirect:/";
     }
 
     @GetMapping(value = "{id}")
@@ -48,7 +62,6 @@ public class ThemeController {
         if(theme.isPresent()){
             model.addAttribute("theme",theme.get());
         }else{
-            //model.addAttribute("error", "ThemeId "+id+" not found");
             return "redirect:/";
         }
         List<Topic> topics = topicDAO.findAllByThemeId(id);

@@ -3,6 +3,7 @@ package com.sobchuk.forum.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,17 +23,14 @@ public class Topic extends AuditDate{
     @Column(name="topic_name", unique = true)
     private String name;
 
-    @NotNull
-    @Size(min=5)
+    @Size(min=5, message="min length is 5")
     @Column(name="topic_desc")
     private String desc;
 
-    @NotNull
     @Size(min=3, max=35)
     @Column(name="created_by")
     private String createdBy;
 
-    @NotNull
     @Size(min=3, max=35)
     @Column(name="updated_by")
     private String updatedBy;
@@ -46,8 +44,8 @@ public class Topic extends AuditDate{
     public Topic() {
     }
 
-    public Topic(@NotNull @Size(min = 1, max = 55) String name, @NotNull @Size(min = 5) String desc,
-                 @NotNull @Size(min = 3, max = 35) String createdBy, Theme theme) {
+    public Topic(@NotNull @Size(min = 1, max = 55) String name, @Size(min = 5) String desc,
+                 @Size(min = 3, max = 35) String createdBy, Theme theme) {
         this.name = name;
         this.desc = desc;
         this.createdBy = createdBy;
